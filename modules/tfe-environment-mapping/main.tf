@@ -68,56 +68,38 @@ locals {
     ]
   ])
 
+  # Local variables for environment configuration
+  environments = ["dev", "test", "qa", "prod"]
+  vsphere_datacenters = ["dc1", "dc2"]
+  vsphere_hardware = ["hw1", "hw2"]
+
   # Special handling for vSphere environments requiring multiple workspaces
   vsphere_workspaces = flatten([
-    for env in local.app_env_platforms : env.is_vsphere ? [
-      for dc in coalesce(env.datacenter, []) : [
-        for hw in coalesce(env.hardware, []) : {
-          app_key             = env.app_key
-          app_name            = env.app_name
-          domain              = env.domain
-          logical_environment = env.logical_environment
-          platform_key        = env.platform_key
-          platform_name       = env.platform_name
-          is_vsphere          = true
-          datacenter          = dc
-          hardware            = hw
-          cost_code           = env.cost_code
-          budget              = env.budget
-          auto_apply          = env.auto_apply
-          terraform_version   = env.terraform_version
-          vcs_repo            = env.vcs_repo
-          variable_sets       = env.variable_sets
-          enabled             = env.enabled
-          # Workspace name following naming convention
-          workspace_name      = "${env.app_name}-${env.domain}-${env.logical_environment}-${env.platform_name}-${dc}-${hw}-snow"
-        }
+    for app_key, app in var.applications : [
+      for domain_env in local.domain_environments : [
+        for platform in local.target_platforms : platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [
+          for dc in coalesce(platform.datacenter, []) : [
+            for hw in coalesce(platform.hardware, []) : {
+              workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
+              workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
+              app_key = app_key
+              domain = domain_env.domain
+              environment = domain_env.logical_environment
+              datacenter = dc
+              hardware = hw
+              budget = app.budget
+              auto_apply = domain_env.auto_apply
+              terraform_version = domain_env.terraform_version
+              vcs_repo = platform.vcs_repo
+              variable_sets = platform.variable_sets
+              enabled = true
+            }
+          ]
+        ] : []
       ]
-    ] : [{
-      app_key             = env.app_key
-      app_name            = env.app_name
-      domain              = env.domain
-      logical_environment = env.logical_environment
-      platform_key        = env.platform_key
-      platform_name       = env.platform_name
-      is_vsphere          = false
-      datacenter          = null
-      hardware            = null
-      cost_code           = env.cost_code
-      budget              = env.budget
-      auto_apply          = env.auto_apply
-      terraform_version   = env.terraform_version
-      vcs_repo            = env.vcs_repo
-      variable_sets       = env.variable_sets
-      enabled             = env.enabled
-      # Workspace name following naming convention
-      workspace_name      = "${env.app_name}-${env.domain}-${env.logical_environment}-${env.platform_name}-snow"
-    }]
+    ]
   ])
 
   # Final list of workspaces to create
-  workspaces = [
-    for workspace in local.vsphere_workspaces :
-    workspace if workspace.enabled
-  ]
+  workspaces = local.vsphere_workspaces
 } 

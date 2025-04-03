@@ -1,5 +1,32 @@
 # Applications configuration
 applications:
+  # Test application for local testing
+  test-app:
+    name: "test-app"
+    allowed_platforms:
+      - "aws"
+    cost_code: "CC-TEST-001"
+    budget: "10000"
+    teams:
+      owners:
+        sso_team_id: "test-app-owners"
+        team_members: ["test-user"]
+      contributors:
+        sso_team_id: "test-app-contributors"
+        team_members: []
+      readers:
+        sso_team_id: "test-app-readers"
+        team_members: []
+    cloud_accounts:
+      aws:
+        dev:
+          account_id: "123456789012"
+          account_name: "test-account"
+          region: "us-east-1"
+          vpc_id: "vpc-12345"
+          subnet_ids: ["subnet-12345"]
+          security_group_ids: ["sg-12345"]
+
   # Example application entries - these would be populated based on onboarding requests
   
   app1:

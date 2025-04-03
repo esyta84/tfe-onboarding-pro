@@ -24,7 +24,7 @@ resource "tfe_project" "project" {
 resource "tfe_team_project_access" "team_access" {
   for_each = var.team_access
 
-  team_id    = each.key
+  team_id    = each.value.team_id
   project_id = tfe_project.project.id
   access     = each.value.access
 } 

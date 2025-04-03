@@ -29,8 +29,8 @@ variable "execution_mode" {
   }
 }
 
-variable "agent_pool_id" {
-  description = "ID of the agent pool (required when execution_mode is 'agent')"
+variable "agent_pool_name" {
+  description = "Name of the agent pool (required when execution_mode is 'agent')"
   type        = string
   default     = null
 }

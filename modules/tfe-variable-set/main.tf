@@ -44,7 +44,7 @@ resource "tfe_workspace_variable_set" "workspace_variable_sets" {
 
 # Connect the variable set to projects
 resource "tfe_project_variable_set" "project_variable_sets" {
-  for_each = toset(var.project_ids)
+  for_each = var.project_ids
 
   project_id      = each.value
   variable_set_id = tfe_variable_set.variable_set.id

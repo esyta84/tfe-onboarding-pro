@@ -1,3 +1,4 @@
+/*
 terraform {
   backend "remote" {
     organization = "your-organization-name"
@@ -7,3 +8,4 @@ terraform {
     }
   }
 } 
+*/ 

@@ -46,9 +46,9 @@ variable "workspace_ids" {
 }
 
 variable "project_ids" {
-  description = "List of project IDs to attach the variable set to"
-  type        = list(string)
-  default     = []
+  description = "Map of project names to their IDs"
+  type        = map(string)
+  default     = {}
 }
 
 variable "application" {

@@ -227,20 +227,26 @@ module "application_projects" {
 
   # Team access configuration
   team_access = {
-    # Platform admin access
-    (module.platform_admins_team.id) = { access = "admin" }
-    
-    # Onboarding team access
-    (module.onboarding_team.id) = { access = "maintain" }
-    
-    # Application owners
-    (module.application_teams[each.value.app_key].id) = { access = "maintain" }
-    
-    # Application contributors
-    (module.application_contributors[each.value.app_key].id) = { access = "write" }
-    
-    # Application readers
-    (module.application_readers[each.value.app_key].id) = { access = "read" }
+    platform_admins = {
+      team_id = module.platform_admins_team.id
+      access  = "admin"
+    }
+    onboarding_team = {
+      team_id = module.onboarding_team.id
+      access  = "maintain"
+    }
+    app_owners = {
+      team_id = module.application_teams[each.value.app_key].id
+      access  = "maintain"
+    }
+    app_contributors = {
+      team_id = module.application_contributors[each.value.app_key].id
+      access  = "write"
+    }
+    app_readers = {
+      team_id = module.application_readers[each.value.app_key].id
+      access  = "read"
+    }
   }
 }
 
@@ -263,8 +269,9 @@ module "workspaces" {
   source   = "../modules/tfe-workspace"
   for_each = {
     for workspace in module.environment_mapping.workspaces : 
-      "${workspace.app_name}-${workspace.domain}-${workspace.logical_environment}-${workspace.platform_name}${workspace.is_vsphere ? "-${workspace.datacenter}-${workspace.hardware}" : ""}" => workspace
-    if contains(local.deploy_filter, workspace.domain)
+      workspace.workspace_key => workspace
+    if contains(local.deploy_filter, workspace.domain) && 
+       contains(local.applications_config.applications[workspace.app_key].allowed_platforms, split("-", split("-", workspace.workspace_key)[3])[0])
   }
 
   name         = each.value.workspace_name
@@ -273,7 +280,6 @@ module "workspaces" {
   description  = "Workspace for ${each.value.app_name} in ${each.value.domain}/${each.value.logical_environment} environment on ${each.value.platform_name}${each.value.is_vsphere ? " (${each.value.datacenter}/${each.value.hardware})" : ""}"
   
   execution_mode = "remote"
-  agent_pool_id  = var.agent_pool_id
   
   auto_apply            = each.value.auto_apply
   terraform_version     = each.value.terraform_version
@@ -377,7 +383,9 @@ module "app_account_configs" {
   domain       = each.value.domain
   
   # Create project-specific variable set for AWS account
-  project_ids = [module.application_projects["${each.value.app_key}-${each.value.domain}"].id]
+  project_ids = {
+    "${local.applications_config.applications[each.value.app_key].name}-${each.value.domain}" = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
+  }
   
   # Get the AWS account configs for this app and domain
   variables = {
@@ -443,7 +451,9 @@ module "app_azure_configs" {
   domain       = each.value.domain
   
   # Create project-specific variable set for Azure subscription
-  project_ids = [module.application_projects["${each.value.app_key}-${each.value.domain}"].id]
+  project_ids = {
+    "${local.applications_config.applications[each.value.app_key].name}-${each.value.domain}" = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
+  }
   
   # Get the Azure subscription configs for this app and domain
   variables = {
@@ -514,7 +524,9 @@ module "app_aws_credentials" {
   domain       = each.value.domain
   
   # Create project-specific variable set for AWS credentials
-  project_ids = [module.application_projects["${each.value.app_key}-${each.value.domain}"].id]
+  project_ids = {
+    "${local.applications_config.applications[each.value.app_key].name}-${each.value.domain}" = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
+  }
   
   # Using placeholders - in real deployment, the onboarding team would retrieve actual credentials from the application team
   variables = {
@@ -560,7 +572,9 @@ module "app_azure_credentials" {
   domain       = each.value.domain
   
   # Create project-specific variable set for Azure credentials
-  project_ids = [module.application_projects["${each.value.app_key}-${each.value.domain}"].id]
+  project_ids = {
+    "${local.applications_config.applications[each.value.app_key].name}-${each.value.domain}" = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
+  }
   
   # Using placeholders - in real deployment, the onboarding team would retrieve actual credentials from the application team
   variables = {

@@ -22,7 +22,6 @@ resource "tfe_workspace" "workspace" {
   
   # Execution mode settings
   execution_mode = var.execution_mode
-  agent_pool_id  = var.execution_mode == "agent" ? var.agent_pool_id : null
   
   # Run settings
   auto_apply            = var.auto_apply
@@ -54,8 +53,7 @@ resource "tfe_workspace" "workspace" {
   # Lifecycle
   lifecycle {
     ignore_changes = [
-      vcs_repo,
-      agent_pool_id
+      vcs_repo
     ]
   }
 }

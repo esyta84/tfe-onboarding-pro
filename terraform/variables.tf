@@ -53,8 +53,8 @@ variable "keycloak_saml_enabled" {
   default     = true
 }
 
-variable "agent_pool_id" {
-  description = "Agent pool ID for agent execution mode workspaces"
+variable "agent_pool_name" {
+  description = "Agent pool name for agent execution mode workspaces"
   type        = string
   default     = null
 } 

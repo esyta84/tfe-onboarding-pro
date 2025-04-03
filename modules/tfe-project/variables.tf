@@ -15,9 +15,10 @@ variable "description" {
 }
 
 variable "team_access" {
-  description = "Map of team IDs to their project access settings"
+  description = "Map of team names to their project access settings"
   type = map(object({
-    access = string # read, write, maintain, admin
+    team_id = string
+    access  = string # read, write, maintain, admin
   }))
   default = {}
 
