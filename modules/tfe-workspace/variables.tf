@@ -120,7 +120,7 @@ variable "variables" {
 }
 
 variable "variable_set_ids" {
-  description = "Set of variable set IDs to associate with the workspace"
-  type        = set(string)
-  default     = []
+  description = "Map of variable set identifiers to their IDs to associate with the workspace"
+  type        = map(string)
+  default     = {}
 } 

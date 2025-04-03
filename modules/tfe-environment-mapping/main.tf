@@ -83,10 +83,15 @@ locals {
               workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
               workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
               app_key = app_key
+              app_name = app.name
               domain = domain_env.domain
-              environment = domain_env.logical_environment
+              logical_environment = domain_env.logical_environment
+              platform_key = platform.key
+              platform_name = platform.name
+              is_vsphere = true
               datacenter = dc
               hardware = hw
+              cost_code = app.cost_code
               budget = app.budget
               auto_apply = domain_env.auto_apply
               terraform_version = domain_env.terraform_version
@@ -100,6 +105,34 @@ locals {
     ]
   ])
 
+  # Workspaces for non-vSphere platforms (AWS, Azure, etc.)
+  non_vsphere_workspaces = flatten([
+    for app_key, app in var.applications : [
+      for domain_env in local.domain_environments : [
+        for platform in local.target_platforms : !platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [{
+          workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}")}"
+          workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}")}"
+          app_key = app_key
+          app_name = app.name
+          domain = domain_env.domain
+          logical_environment = domain_env.logical_environment
+          platform_key = platform.key
+          platform_name = platform.name
+          is_vsphere = false
+          datacenter = null
+          hardware = null
+          cost_code = app.cost_code
+          budget = app.budget
+          auto_apply = domain_env.auto_apply
+          terraform_version = domain_env.terraform_version
+          vcs_repo = platform.vcs_repo
+          variable_sets = platform.variable_sets
+          enabled = true
+        }] : []
+      ]
+    ]
+  ])
+
   # Final list of workspaces to create
-  workspaces = local.vsphere_workspaces
+  workspaces = concat(local.vsphere_workspaces, local.non_vsphere_workspaces)
 } 

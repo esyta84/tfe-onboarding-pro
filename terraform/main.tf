@@ -320,27 +320,31 @@ module "workspaces" {
   }
   
   # Connect to variable sets
-  variable_set_ids = concat(
+  variable_set_ids = merge(
     # Global variable sets
-    [module.global_variable_set.id],
+    {
+      "global" = module.global_variable_set.id
+    },
     
     # Account-specific variable sets based on platform
     contains(["aws"], each.value.platform_key) && 
     lookup(module.app_aws_credentials, "${each.value.app_key}-${each.value.domain}", null) != null ? 
-    [
-      module.app_account_configs["${each.value.app_key}-${each.value.domain}"].id,
-      module.app_aws_credentials["${each.value.app_key}-${each.value.domain}"].id
-    ] : [],
+    {
+      "aws-config" = module.app_account_configs["${each.value.app_key}-${each.value.domain}"].id,
+      "aws-credentials" = module.app_aws_credentials["${each.value.app_key}-${each.value.domain}"].id
+    } : {},
     
     contains(["azure"], each.value.platform_key) && 
     lookup(module.app_azure_credentials, "${each.value.app_key}-${each.value.domain}", null) != null ? 
-    [
-      module.app_azure_configs["${each.value.app_key}-${each.value.domain}"].id, 
-      module.app_azure_credentials["${each.value.app_key}-${each.value.domain}"].id
-    ] : [],
+    {
+      "azure-config" = module.app_azure_configs["${each.value.app_key}-${each.value.domain}"].id,
+      "azure-credentials" = module.app_azure_credentials["${each.value.app_key}-${each.value.domain}"].id
+    } : {},
     
     # Platform-specific variable sets that aren't account-specific
-    contains(["vsphere-dev", "vsphere-prod"], each.value.platform_key) ? [module.vsphere_credentials.id] : []
+    contains(["vsphere-dev", "vsphere-prod"], each.value.platform_key) ? {
+      "vsphere-credentials" = module.vsphere_credentials.id
+    } : {}
   )
   
   tag_names = [
