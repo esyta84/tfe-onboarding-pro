@@ -322,11 +322,6 @@ module "workspaces" {
   
   # Connect to variable sets
   variable_set_ids = merge(
-    # Global variable sets
-    {
-      "global" = module.global_variable_set.id
-    },
-    
     # Account-specific variable sets based on platform
     contains(["aws"], each.value.platform_key) && 
     lookup(module.app_aws_credentials, "${each.value.app_key}-${each.value.domain}", null) != null ? 
