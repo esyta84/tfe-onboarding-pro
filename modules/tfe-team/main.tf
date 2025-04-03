@@ -32,14 +32,6 @@ resource "tfe_team" "team" {
   sso_team_id = var.sso_team_id
 }
 
-# Add team members
-resource "tfe_team_members" "members" {
-  count = length(var.team_members) > 0 ? 1 : 0
-
-  team_id   = tfe_team.team.id
-  usernames = var.team_members
-}
-
 # Generate a team token
 resource "tfe_team_token" "token" {
   team_id = tfe_team.team.id

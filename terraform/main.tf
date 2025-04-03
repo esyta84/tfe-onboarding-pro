@@ -38,7 +38,6 @@ module "platform_admins_team" {
   visibility   = local.teams_config.teams["platform-admins"].visibility
   organization_access = local.teams_config.teams["platform-admins"].organization_access
   sso_team_id  = var.keycloak_saml_enabled ? local.teams_config.teams["platform-admins"].sso_team_id : null
-  team_members = local.teams_config.teams["platform-admins"].team_members
 }
 
 module "onboarding_team" {
@@ -49,7 +48,6 @@ module "onboarding_team" {
   visibility   = local.teams_config.teams["onboarding-team"].visibility
   organization_access = local.teams_config.teams["onboarding-team"].organization_access
   sso_team_id  = var.keycloak_saml_enabled ? local.teams_config.teams["onboarding-team"].sso_team_id : null
-  team_members = local.teams_config.teams["onboarding-team"].team_members
 }
 
 # Create global variable sets
@@ -169,7 +167,6 @@ module "application_teams" {
   visibility   = local.teams_config.teams["app-team-owners-template"].visibility
   organization_access = local.teams_config.teams["app-team-owners-template"].organization_access
   sso_team_id  = var.keycloak_saml_enabled ? each.value.teams.owners.sso_team_id : null
-  team_members = each.value.teams.owners.team_members
 }
 
 module "application_contributors" {
@@ -185,7 +182,6 @@ module "application_contributors" {
   visibility   = local.teams_config.teams["app-team-contributors-template"].visibility
   organization_access = local.teams_config.teams["app-team-contributors-template"].organization_access
   sso_team_id  = var.keycloak_saml_enabled ? each.value.teams.contributors.sso_team_id : null
-  team_members = each.value.teams.contributors.team_members
 }
 
 module "application_readers" {
@@ -201,7 +197,6 @@ module "application_readers" {
   visibility   = local.teams_config.teams["app-team-readers-template"].visibility
   organization_access = local.teams_config.teams["app-team-readers-template"].organization_access
   sso_team_id  = var.keycloak_saml_enabled ? each.value.teams.readers.sso_team_id : null
-  team_members = each.value.teams.readers.team_members
 }
 
 # Projects (one per domain environment per application)

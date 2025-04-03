@@ -50,12 +50,6 @@ variable "sso_team_id" {
   default     = null
 }
 
-variable "team_members" {
-  description = "List of team member usernames"
-  type        = list(string)
-  default     = []
-}
-
 variable "force_regenerate_token" {
   description = "Whether to force regeneration of the team token"
   type        = bool
