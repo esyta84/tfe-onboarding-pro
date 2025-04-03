@@ -1,0 +1,155 @@
+# Applications configuration
+applications:
+  # Example application entries - these would be populated based on onboarding requests
+  
+  app1:
+    name: "app1"
+    allowed_platforms:
+      - "aws"
+      - "azure"
+      - "vsphere-dev"
+      - "vsphere-prod"
+    cost_code: "CC-APP1-001"
+    budget: "1000000"
+    hw_restrictions:
+      - "hw1"  # This app is restricted to hw1 only
+    teams:
+      owners:
+        sso_team_id: "app1-owners"
+        team_members: []
+      contributors:
+        sso_team_id: "app1-contributors"
+        team_members: []
+      readers:
+        sso_team_id: "app1-readers"
+        team_members: []
+    cloud_accounts:
+      aws:
+        dev:
+          account_id: "123456789012"
+          account_name: "app1-dev"
+          region: "ap-southeast-2"
+          vpc_id: "vpc-abc123"
+          subnet_ids: ["subnet-123", "subnet-456"]
+          security_group_ids: ["sg-123", "sg-456"]
+        preprod:
+          account_id: "234567890123"
+          account_name: "app1-preprod"
+          region: "ap-southeast-2"
+          vpc_id: "vpc-def456"
+          subnet_ids: ["subnet-789", "subnet-012"]
+          security_group_ids: ["sg-789", "sg-012"]
+        prod:
+          account_id: "345678901234"
+          account_name: "app1-prod"
+          region: "ap-southeast-2"
+          vpc_id: "vpc-ghi789"
+          subnet_ids: ["subnet-345", "subnet-678"]
+          security_group_ids: ["sg-345", "sg-678"]
+      azure:
+        dev:
+          subscription_id: "11111111-1111-1111-1111-111111111111"
+          tenant_id: "22222222-2222-2222-2222-222222222222"
+          resource_group: "app1-dev-rg"
+          location: "australiaeast"
+          vnet_name: "app1-dev-vnet"
+          subnet_names: ["app1-dev-subnet1", "app1-dev-subnet2"]
+        preprod:
+          subscription_id: "33333333-3333-3333-3333-333333333333"
+          tenant_id: "44444444-4444-4444-4444-444444444444"
+          resource_group: "app1-preprod-rg"
+          location: "australiaeast"
+          vnet_name: "app1-preprod-vnet"
+          subnet_names: ["app1-preprod-subnet1", "app1-preprod-subnet2"]
+        prod:
+          subscription_id: "55555555-5555-5555-5555-555555555555"
+          tenant_id: "66666666-6666-6666-6666-666666666666"
+          resource_group: "app1-prod-rg"
+          location: "australiaeast"
+          vnet_name: "app1-prod-vnet"
+          subnet_names: ["app1-prod-subnet1", "app1-prod-subnet2"]
+
+  app2:
+    name: "app2"
+    allowed_platforms:
+      - "aws"
+      - "azure"
+    cost_code: "CC-APP2-002"
+    budget: "500000"
+    hw_restrictions: []  # No hardware restrictions
+    teams:
+      owners:
+        sso_team_id: "app2-owners"
+        team_members: []
+      contributors:
+        sso_team_id: "app2-contributors"
+        team_members: []
+      readers:
+        sso_team_id: "app2-readers"
+        team_members: []
+    cloud_accounts:
+      aws:
+        dev:
+          account_id: "456789012345"
+          account_name: "app2-dev"
+          region: "us-west-2"
+          vpc_id: "vpc-jkl012"
+          subnet_ids: ["subnet-901", "subnet-234"]
+          security_group_ids: ["sg-901", "sg-234"]
+        preprod:
+          account_id: "567890123456"
+          account_name: "app2-preprod"
+          region: "us-west-2"
+          vpc_id: "vpc-mno345"
+          subnet_ids: ["subnet-567", "subnet-890"]
+          security_group_ids: ["sg-567", "sg-890"]
+        prod:
+          account_id: "678901234567"
+          account_name: "app2-prod"
+          region: "us-west-2"
+          vpc_id: "vpc-pqr678"
+          subnet_ids: ["subnet-123", "subnet-456"]
+          security_group_ids: ["sg-123", "sg-456"]
+      azure:
+        dev:
+          subscription_id: "77777777-7777-7777-7777-777777777777"
+          tenant_id: "88888888-8888-8888-8888-888888888888"
+          resource_group: "app2-dev-rg"
+          location: "westus2"
+          vnet_name: "app2-dev-vnet"
+          subnet_names: ["app2-dev-subnet1", "app2-dev-subnet2"]
+        preprod:
+          subscription_id: "99999999-9999-9999-9999-999999999999"
+          tenant_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+          resource_group: "app2-preprod-rg"
+          location: "westus2"
+          vnet_name: "app2-preprod-vnet"
+          subnet_names: ["app2-preprod-subnet1", "app2-preprod-subnet2"]
+        prod:
+          subscription_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+          tenant_id: "cccccccc-cccc-cccc-cccc-cccccccccccc"
+          resource_group: "app2-prod-rg"
+          location: "westus2"
+          vnet_name: "app2-prod-vnet"
+          subnet_names: ["app2-prod-subnet1", "app2-prod-subnet2"]
+
+  app3:
+    name: "app3"
+    allowed_platforms:
+      - "vsphere-dev"
+      - "vsphere-prod"
+    cost_code: "CC-APP3-003"
+    budget: "250000"
+    hw_restrictions:
+      - "hw2"  # This app is restricted to hw2 only
+    teams:
+      owners:
+        sso_team_id: "app3-owners"
+        team_members: []
+      contributors:
+        sso_team_id: "app3-contributors"
+        team_members: []
+      readers:
+        sso_team_id: "app3-readers"
+        team_members: []
+    # No cloud accounts for this application as it only uses vSphere 

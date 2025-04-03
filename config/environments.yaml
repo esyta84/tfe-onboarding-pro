@@ -1,0 +1,76 @@
+# Domain environments configuration
+domain_environments:
+  dev:
+    logical_environments:
+      - dev
+      - test
+      - qa
+    auto_apply: true
+    terraform_version: "1.5.7"
+  preprod:
+    logical_environments:
+      - uat
+      - staging
+    auto_apply: false
+    terraform_version: "1.5.7"
+  prod:
+    logical_environments:
+      - prod
+    auto_apply: false
+    terraform_version: "1.5.7"
+
+# Target platforms configuration
+target_platforms:
+  aws:
+    name: aws
+    is_vsphere: false
+    vcs_repo:
+      identifier: "org/aws-infrastructure"
+      branch: "main"
+      oauth_token_id: "ot-placeholder"
+    variable_sets:
+      - "aws-credentials"
+      - "global-vars"
+
+  azure:
+    name: azure
+    is_vsphere: false
+    vcs_repo:
+      identifier: "org/azure-infrastructure"
+      branch: "main"
+      oauth_token_id: "ot-placeholder"
+    variable_sets:
+      - "azure-credentials"
+      - "global-vars"
+
+  vsphere-prod:
+    name: vsphere
+    is_vsphere: true
+    datacenter:
+      - "dc1"
+      - "dc2"
+    hardware:
+      - "hw1"
+      - "hw2"
+    vcs_repo:
+      identifier: "org/vsphere-infrastructure"
+      branch: "main"
+      oauth_token_id: "ot-placeholder"
+    variable_sets:
+      - "vsphere-credentials"
+      - "global-vars"
+
+  vsphere-dev:
+    name: vsphere
+    is_vsphere: true
+    datacenter:
+      - "dc1"
+    hardware:
+      - "hw1"
+    vcs_repo:
+      identifier: "org/vsphere-infrastructure"
+      branch: "develop"
+      oauth_token_id: "ot-placeholder"
+    variable_sets:
+      - "vsphere-credentials"
+      - "global-vars" 

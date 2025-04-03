@@ -1,0 +1,172 @@
+# Teams configuration
+teams:
+  # Platform admin teams
+  platform-admins:
+    visibility: "organization"
+    organization_access:
+      manage_policies: true
+      manage_policy_overrides: true
+      manage_workspaces: true
+      manage_vcs_settings: true
+      manage_providers: true
+      manage_modules: true
+      manage_run_tasks: true
+      manage_projects: true
+      manage_membership: true
+    sso_team_id: "platform-admins"
+    team_members: []
+
+  # Onboarding teams
+  onboarding-team:
+    visibility: "organization"
+    organization_access:
+      manage_workspaces: true
+      manage_projects: true
+      manage_membership: true
+    sso_team_id: "onboarding-team"
+    team_members: []
+
+  # Application teams templates
+  app-team-owners-template:
+    visibility: "organization"
+    organization_access:
+      manage_workspaces: false
+      manage_projects: false
+      manage_membership: false
+    sso_team_id: null
+    team_members: []
+
+  app-team-contributors-template:
+    visibility: "organization"
+    organization_access:
+      manage_workspaces: false
+      manage_projects: false
+      manage_membership: false
+    sso_team_id: null
+    team_members: []
+
+  app-team-readers-template:
+    visibility: "organization"
+    organization_access:
+      manage_workspaces: false
+      manage_projects: false
+      manage_membership: false
+    sso_team_id: null
+    team_members: []
+
+# Project access templates
+project_access_templates:
+  # For platform admins
+  platform-admin-access:
+    access: "admin"
+    project_access:
+      settings: "update"
+      teams: "read"
+      variables:
+        read: true
+        write: true
+      run_tasks:
+        read: true
+    workspace_access:
+      runs: "apply"
+      sentinel_mocks: "read"
+      state_versions: "read"
+      variables: "write"
+      create: true
+      lock: true
+      move: true
+      delete: true
+      run_tasks: "read-write"
+      assessment_results: "read"
+
+  # For onboarding team
+  onboarding-team-access:
+    access: "maintain"
+    project_access:
+      settings: "update"
+      teams: "read"
+      variables:
+        read: true
+        write: true
+      run_tasks:
+        read: true
+    workspace_access:
+      runs: "plan"
+      sentinel_mocks: "read"
+      state_versions: "read"
+      variables: "write"
+      create: true
+      lock: true
+      move: true
+      delete: false
+      run_tasks: "read"
+      assessment_results: "read"
+
+  # For application team owners
+  app-team-owners-access:
+    access: "maintain"
+    project_access:
+      settings: "read"
+      teams: "read"
+      variables:
+        read: true
+        write: false
+      run_tasks:
+        read: true
+    workspace_access:
+      runs: "apply"
+      sentinel_mocks: "read"
+      state_versions: "read"
+      variables: "write"
+      create: false
+      lock: true
+      move: false
+      delete: false
+      run_tasks: "read"
+      assessment_results: "read"
+
+  # For application team contributors
+  app-team-contributors-access:
+    access: "write"
+    project_access:
+      settings: "read"
+      teams: "none"
+      variables:
+        read: true
+        write: false
+      run_tasks:
+        read: true
+    workspace_access:
+      runs: "plan"
+      sentinel_mocks: "read"
+      state_versions: "read"
+      variables: "write"
+      create: false
+      lock: false
+      move: false
+      delete: false
+      run_tasks: "read"
+      assessment_results: "read"
+
+  # For application team readers
+  app-team-readers-access:
+    access: "read"
+    project_access:
+      settings: "read"
+      teams: "none"
+      variables:
+        read: true
+        write: false
+      run_tasks:
+        read: false
+    workspace_access:
+      runs: "read"
+      sentinel_mocks: "none"
+      state_versions: "read"
+      variables: "read"
+      create: false
+      lock: false
+      move: false
+      delete: false
+      run_tasks: "none"
+      assessment_results: "read" 

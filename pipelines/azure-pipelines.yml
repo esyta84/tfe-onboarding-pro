@@ -1,0 +1,212 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - '**'
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - '**'
+
+parameters:
+  - name: environment
+    displayName: Environment to deploy
+    type: string
+    default: dev
+    values:
+      - dev
+      - preprod
+      - prod
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: tfe-onboarding-variables
+
+stages:
+  - stage: validate
+    displayName: 'Validate'
+    jobs:
+      - job: terraform_validate
+        displayName: 'Terraform Validate'
+        steps:
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '1.5.7'
+          
+          - task: Bash@3
+            displayName: 'Terraform Init'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform init -backend=false
+          
+          - task: Bash@3
+            displayName: 'Terraform Validate'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform validate
+          
+          - task: Bash@3
+            displayName: 'Config Validation'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
+              script: |
+                # Validate YAML files
+                for file in config/*.yaml; do
+                  echo "Validating $file..."
+                  python -c "import yaml; yaml.safe_load(open('$file'))"
+                done
+
+  - stage: plan
+    displayName: 'Plan (${{ parameters.environment }})'
+    dependsOn: validate
+    jobs:
+      - job: terraform_plan
+        displayName: 'Terraform Plan'
+        steps:
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '1.5.7'
+          
+          - task: Bash@3
+            displayName: 'Terraform Init'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform init \
+                  -backend-config="organization=$(TFE_ORGANIZATION)" \
+                  -backend-config="workspaces.name=tfe-onboarding-${{ parameters.environment }}"
+          
+          - task: Bash@3
+            displayName: 'Terraform Plan'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform plan \
+                  -var="tfe_hostname=$(TFE_HOSTNAME)" \
+                  -var="tfe_token=$(TFE_TOKEN)" \
+                  -var="organization_name=$(ORGANIZATION_NAME)" \
+                  -var="organization_email=$(ORGANIZATION_EMAIL)" \
+                  -var="admin_email=$(ADMIN_EMAIL)" \
+                  -var="oauth_token_id=$(OAUTH_TOKEN_ID)" \
+                  -var="deploy_environment=${{ parameters.environment }}" \
+                  -var="keycloak_saml_enabled=$(KEYCLOAK_SAML_ENABLED)" \
+                  -var="agent_pool_id=$(AGENT_POOL_ID)" \
+                  -out=tfplan
+
+  - stage: apply_dev
+    displayName: 'Apply (Dev)'
+    dependsOn: plan
+    condition: and(succeeded(), eq('${{ parameters.environment }}', 'dev'))
+    jobs:
+      - job: terraform_apply
+        displayName: 'Terraform Apply'
+        steps:
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '1.5.7'
+          
+          - task: Bash@3
+            displayName: 'Terraform Init'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform init \
+                  -backend-config="organization=$(TFE_ORGANIZATION)" \
+                  -backend-config="workspaces.name=tfe-onboarding-${{ parameters.environment }}"
+          
+          - task: Bash@3
+            displayName: 'Terraform Apply'
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+              script: |
+                terraform apply tfplan
+
+  - stage: apply_preprod
+    displayName: 'Apply (PreProd)'
+    dependsOn: plan
+    condition: and(succeeded(), eq('${{ parameters.environment }}', 'preprod'))
+    jobs:
+      - deployment: terraform_apply
+        displayName: 'Terraform Apply'
+        environment: preprod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@0
+                  displayName: 'Install Terraform'
+                  inputs:
+                    terraformVersion: '1.5.7'
+                
+                - task: Bash@3
+                  displayName: 'Terraform Init'
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+                    script: |
+                      terraform init \
+                        -backend-config="organization=$(TFE_ORGANIZATION)" \
+                        -backend-config="workspaces.name=tfe-onboarding-${{ parameters.environment }}"
+                
+                - task: Bash@3
+                  displayName: 'Terraform Apply'
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+                    script: |
+                      terraform apply tfplan
+
+  - stage: apply_prod
+    displayName: 'Apply (Prod)'
+    dependsOn: plan
+    condition: and(succeeded(), eq('${{ parameters.environment }}', 'prod'))
+    jobs:
+      - deployment: terraform_apply
+        displayName: 'Terraform Apply'
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@0
+                  displayName: 'Install Terraform'
+                  inputs:
+                    terraformVersion: '1.5.7'
+                
+                - task: Bash@3
+                  displayName: 'Terraform Init'
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+                    script: |
+                      terraform init \
+                        -backend-config="organization=$(TFE_ORGANIZATION)" \
+                        -backend-config="workspaces.name=tfe-onboarding-${{ parameters.environment }}"
+                
+                - task: Bash@3
+                  displayName: 'Terraform Apply'
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+                    script: |
+                      terraform apply tfplan 
