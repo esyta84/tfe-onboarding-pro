@@ -10,7 +10,7 @@ applications:
     teams:
       owners:
         sso_team_id: "test-app-owners"
-        team_members: ["test-user"]
+        team_members: []
       contributors:
         sso_team_id: "test-app-contributors"
         team_members: []

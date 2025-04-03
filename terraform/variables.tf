@@ -33,8 +33,9 @@ variable "config_path" {
 }
 
 variable "oauth_token_id" {
-  description = "The OAuth token ID for VCS integration"
+  description = "The OAuth token ID for VCS integration (optional, set to null to disable VCS integration)"
   type        = string
+  default     = null
 }
 
 variable "deploy_environment" {

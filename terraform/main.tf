@@ -23,7 +23,7 @@ module "organization" {
 
   name                       = var.organization_name
   email                      = var.organization_email
-  collaborator_auth_policy   = "two_factor_mandatory"
+  collaborator_auth_policy   = "password"
   owners_team_saml_role_id   = var.keycloak_saml_enabled ? "owners" : null
   cost_estimation_enabled    = true
   allow_force_delete_workspaces = false
@@ -253,6 +253,7 @@ module "environment_mapping" {
   target_platforms    = local.environments_config.target_platforms
   applications        = local.applications_config.applications
   organization        = module.organization.name
+  vcs_enabled         = var.oauth_token_id != null
   
   project_ids = {
     for key, project in module.application_projects : key => project.id
@@ -274,7 +275,7 @@ module "workspaces" {
   project_id   = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
   description  = "Workspace for ${each.value.app_name} in ${each.value.domain}/${each.value.logical_environment} environment on ${each.value.platform_name}${each.value.is_vsphere ? " (${each.value.datacenter}/${each.value.hardware})" : ""}"
   
-  execution_mode = "remote"
+  execution_mode = var.oauth_token_id == null || var.oauth_token_id == "null" ? "local" : "remote"
   
   auto_apply            = each.value.auto_apply
   terraform_version     = each.value.terraform_version
@@ -283,10 +284,10 @@ module "workspaces" {
   allow_destroy_plan    = each.value.domain == "dev" ? true : false
   
   # VCS settings
-  vcs_repo = each.value.vcs_repo != null ? {
+  vcs_repo = each.value.vcs_repo != null && var.oauth_token_id != null && var.oauth_token_id != "null" ? {
     identifier     = each.value.vcs_repo.identifier
     branch         = each.value.vcs_repo.branch
-    oauth_token_id = var.oauth_token_id != null ? var.oauth_token_id : each.value.vcs_repo.oauth_token_id
+    oauth_token_id = var.oauth_token_id
     ingress_submodules = coalesce(each.value.vcs_repo.ingress_submodules, false)
     tags_regex     = each.value.vcs_repo.tags_regex
   } : null

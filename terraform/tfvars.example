@@ -1,0 +1,9 @@
+organization_name    = "my-test-organization"
+organization_email   = "admin@example.com"
+deploy_environment   = "dev"
+
+# Leave as null to disable VCS integration
+oauth_token_id       = null
+
+# Can be set to true if you have SAML configured
+keycloak_saml_enabled = true 

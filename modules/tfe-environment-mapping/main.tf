@@ -95,7 +95,7 @@ locals {
               budget = app.budget
               auto_apply = domain_env.auto_apply
               terraform_version = domain_env.terraform_version
-              vcs_repo = platform.vcs_repo
+              vcs_repo = var.vcs_enabled ? platform.vcs_repo : null
               variable_sets = platform.variable_sets
               enabled = true
             }
@@ -125,7 +125,7 @@ locals {
           budget = app.budget
           auto_apply = domain_env.auto_apply
           terraform_version = domain_env.terraform_version
-          vcs_repo = platform.vcs_repo
+          vcs_repo = var.vcs_enabled ? platform.vcs_repo : null
           variable_sets = platform.variable_sets
           enabled = true
         }] : []
@@ -134,5 +134,10 @@ locals {
   ])
 
   # Final list of workspaces to create
-  workspaces = concat(local.vsphere_workspaces, local.non_vsphere_workspaces)
+  workspaces = [
+    for workspace in concat(local.vsphere_workspaces, local.non_vsphere_workspaces) : merge(
+      workspace,
+      var.vcs_enabled ? {} : { vcs_repo = null }
+    )
+  ]
 } 

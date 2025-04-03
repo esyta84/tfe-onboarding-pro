@@ -63,4 +63,10 @@ variable "project_ids" {
   description = "Map of application domain combinations to project IDs"
   type        = map(string)
   default     = {}
+}
+
+variable "vcs_enabled" {
+  description = "Whether to use VCS integration for workspaces"
+  type        = bool
+  default     = true
 } 
