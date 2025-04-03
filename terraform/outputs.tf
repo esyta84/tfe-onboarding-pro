@@ -83,4 +83,15 @@ output "workspaces" {
       name = workspace.name
     }
   }
+}
+
+output "vsphere_workspaces" {
+  description = "vSphere workspaces created by the environment mapping"
+  value = {
+    for key, workspace in module.workspaces : key => {
+      id   = workspace.id
+      name = workspace.name
+    }
+    if contains(split("-", key), "vsphere")
+  }
 } 

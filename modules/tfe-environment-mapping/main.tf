@@ -81,7 +81,7 @@ locals {
           for dc in coalesce(platform.datacenter, []) : [
             for hw in coalesce(platform.hardware, []) : {
               workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}"
-              workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}"
+              workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}-${dc}-${hw}"
               app_key = app_key
               app_name = app.name
               domain = domain_env.domain

@@ -265,9 +265,9 @@ module "workspaces" {
   source   = "../modules/tfe-workspace"
   for_each = {
     for workspace in module.environment_mapping.workspaces : 
-      workspace.workspace_key => workspace
+      "${workspace.workspace_key}" => workspace
     if contains(local.deploy_filter, workspace.domain) && 
-       contains(local.applications_config.applications[workspace.app_key].allowed_platforms, split("-", split("-", workspace.workspace_key)[3])[0])
+       contains(local.applications_config.applications[workspace.app_key].allowed_platforms, workspace.platform_key)
   }
 
   name         = each.value.workspace_name
