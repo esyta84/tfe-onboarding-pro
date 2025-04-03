@@ -152,6 +152,173 @@ API tokens are automatically generated for each team during creation. These toke
 
 These tokens should be treated as sensitive credentials and securely stored in the application team's CI/CD system (e.g., Azure DevOps variable groups, GitHub secrets, etc.).
 
+## Local Testing
+
+For testing the onboarding automation locally or creating a new Terraform organization without using the Azure DevOps pipeline, follow these instructions:
+
+### Prerequisites for Local Testing
+
+1. Terraform CLI version 1.3 or later installed
+2. HashiCorp TFE provider 0.64.0 or later
+3. TFE API token with admin privileges (or privileges to create a new organization)
+4. Git CLI for cloning the repository
+
+### Setup Local Environment
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd tfe-onboarding-pro
+   ```
+
+2. Create a `terraform.tfvars` file in the `terraform` directory with your configuration:
+   ```bash
+   cd terraform
+   touch terraform.tfvars
+   ```
+
+3. Add the required variables to your `terraform.tfvars` file:
+   ```hcl
+   # Required variables
+   tfe_hostname         = "app.terraform.io"  # Or your TFE instance hostname
+   tfe_token            = "YOUR_TFE_API_TOKEN"
+   organization_name    = "my-test-organization"
+   organization_email   = "admin@example.com"
+   
+   # Optional variables with defaults
+   deploy_environment   = "dev"  # Options: dev, preprod, prod
+   config_path          = "../config"
+   keycloak_saml_enabled = false  # Set to true if using Keycloak for SAML
+   
+   # VCS integration (required for workspace VCS setup)
+   oauth_token_id       = "ot-xxxxxxxxxxxx"  # OAuth token for VCS integration
+   
+   # For agent execution (if needed)
+   # agent_pool_id      = "apool-xxxxxxxx"
+   ```
+
+### Modifying Backend Configuration
+
+For local testing, modify the `backend.tf` file to use your own organization and workspace:
+
+1. Open `terraform/backend.tf`:
+   ```hcl
+   terraform {
+     backend "remote" {
+       organization = "your-organization-name"
+       
+       workspaces {
+         name = "tfe-onboarding-automation"
+       }
+     }
+   }
+   ```
+
+2. Replace `your-organization-name` with your existing TFE organization where you want to store the state.
+3. Alternatively, for purely local testing, you can comment out the backend configuration to use local state:
+   ```hcl
+   /*
+   terraform {
+     backend "remote" {
+       organization = "your-organization-name"
+       
+       workspaces {
+         name = "tfe-onboarding-automation"
+       }
+     }
+   }
+   */
+   ```
+
+### Initialize, Plan, and Apply
+
+1. Initialize Terraform:
+   ```bash
+   terraform init
+   ```
+
+2. Create a plan to see what resources will be created:
+   ```bash
+   terraform plan -out=plan.tfplan
+   ```
+
+3. Review the plan output carefully
+
+4. Apply the configuration:
+   ```bash
+   terraform apply plan.tfplan
+   ```
+
+### Testing with a Minimal Configuration
+
+For minimal testing, you can create a test application in your YAML files with reduced complexity:
+
+1. Edit your `config/applications.yaml` file to add a simple test application:
+   ```yaml
+   applications:
+     test-app:
+       name: "test-app"
+       allowed_platforms:
+         - "aws"
+       cost_code: "CC-TEST-001"
+       budget: "10000"
+       hw_restrictions: []
+       teams:
+         owners:
+           sso_team_id: "test-app-owners"
+           team_members: ["your-username"]
+         contributors:
+           sso_team_id: "test-app-contributors"
+           team_members: []
+         readers:
+           sso_team_id: "test-app-readers"
+           team_members: []
+       cloud_accounts:
+         aws:
+           dev:
+             account_id: "123456789012"
+             account_name: "test-account"
+             region: "us-east-1"
+             vpc_id: "vpc-12345"
+             subnet_ids: ["subnet-12345"]
+             security_group_ids: ["sg-12345"]
+   ```
+
+2. Set `deploy_environment = "dev"` in your `terraform.tfvars` file to only deploy development resources
+
+### Retrieving Team Tokens
+
+After successful application of your configuration:
+
+1. Extract the team tokens for your test application:
+   ```bash
+   terraform output -json team_tokens | jq '.application_teams."test-app".owners'
+   ```
+
+2. Save the token to use for CLI authentication:
+   ```bash
+   # Create or update the Terraform CLI config file
+   cat > ~/.terraformrc << EOF
+   credentials "app.terraform.io" {
+     token = "YOUR_EXTRACTED_TOKEN"
+   }
+   EOF
+   chmod 0600 ~/.terraformrc
+   ```
+
+### Cleaning Up Test Resources
+
+To remove all resources created during testing:
+
+1. Destroy the infrastructure:
+   ```bash
+   terraform destroy
+   ```
+
+2. Confirm the destruction when prompted
+
+> **Warning**: Running `terraform destroy` in a production environment will delete all the created resources. Use with caution and only in test environments.
+
 ## Using Team Tokens in CI/CD Pipelines
 
 Application teams can use their team tokens to authenticate with Terraform Enterprise in their CI/CD pipelines. Here's a basic example for Azure DevOps:
@@ -280,6 +447,7 @@ For the onboarding team, the typical workflow is:
 - **Cloud account issues**: Verify that AWS account IDs and Azure subscription details are correct
 - **Credential errors**: Ensure that access keys and client secrets are correctly configured
 - **Token issues**: If a team token is compromised, use `force_regenerate_token = true` to create a new token
+- **Local testing issues**: When testing locally, check that your `terraform.tfvars` file contains all required variables
 
 ### Support Contacts
 

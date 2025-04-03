@@ -1,0 +1,22 @@
+# Example terraform.tfvars file for local testing
+# Copy this file to terraform.tfvars and update the values
+
+# Required variables
+tfe_hostname         = "app.terraform.io"  # Or your private TFE instance hostname
+tfe_token            = "YOUR_TFE_API_TOKEN" # Get this from your user settings in TFE
+organization_name    = "my-test-organization"
+organization_email   = "admin@example.com"
+
+# Optional variables with defaults
+deploy_environment   = "dev"  # Options: dev, preprod, prod
+config_path          = "../config"
+keycloak_saml_enabled = false  # Set to true if using Keycloak for SAML
+
+# VCS integration (required for workspace VCS setup)
+oauth_token_id       = "ot-xxxxxxxxxxxx"  # OAuth token for VCS integration
+
+# For agent execution (if needed)
+# agent_pool_id      = "apool-xxxxxxxx"
+
+# If you're creating a new organization and don't need admin_email
+admin_email          = null 
