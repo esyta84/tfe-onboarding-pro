@@ -80,8 +80,8 @@ locals {
         for platform in local.target_platforms : platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [
           for dc in coalesce(platform.datacenter, []) : [
             for hw in coalesce(platform.hardware, []) : {
-              workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
-              workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}-${hw}")}"
+              workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}"
+              workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${dc}-${hw}"
               app_key = app_key
               app_name = app.name
               domain = domain_env.domain
@@ -110,8 +110,8 @@ locals {
     for app_key, app in var.applications : [
       for domain_env in local.domain_environments : [
         for platform in local.target_platforms : !platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [{
-          workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}")}"
-          workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-${md5("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}")}"
+          workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}"
+          workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}"
           app_key = app_key
           app_name = app.name
           domain = domain_env.domain
