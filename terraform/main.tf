@@ -273,7 +273,7 @@ module "workspaces" {
   name         = each.value.workspace_name
   organization = module.organization.name
   project_id   = module.application_projects["${each.value.app_key}-${each.value.domain}"].id
-  description  = "Workspace for ${each.value.app_name} in ${each.value.domain}/${each.value.logical_environment} environment on ${each.value.is_vsphere ? each.value.platform_key : each.value.platform_name}${each.value.is_vsphere ? " (${each.value.datacenter}/${each.value.hardware})" : ""}"
+  description  = "Workspace for ${each.value.app_name} in ${each.value.domain}/${each.value.logical_environment} environment on ${each.value.is_vsphere ? "DC ${each.value.datacenter} / HW ${each.value.hardware}" : each.value.platform_name} (SNOW)"
   
   execution_mode = var.oauth_token_id == null || var.oauth_token_id == "null" ? "local" : "remote"
   

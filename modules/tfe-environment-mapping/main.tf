@@ -80,7 +80,7 @@ locals {
         for platform in local.target_platforms : platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [
           for dc in coalesce(platform.datacenter, []) : [
             for hw in coalesce(platform.hardware, []) : {
-              workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}-${dc}-${hw}"
+              workspace_name = upper("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${dc}_${hw}-SNOW")
               workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.key}-${dc}-${hw}"
               app_key = app_key
               app_name = app.name
@@ -110,7 +110,7 @@ locals {
     for app_key, app in var.applications : [
       for domain_env in local.domain_environments : [
         for platform in local.target_platforms : !platform.is_vsphere && contains(app.allowed_platforms, platform.key) ? [{
-          workspace_name = "${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}"
+          workspace_name = upper("${app.name}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}-SNOW")
           workspace_key = "${app_key}-${domain_env.domain}-${domain_env.logical_environment}-${platform.name}"
           app_key = app_key
           app_name = app.name
